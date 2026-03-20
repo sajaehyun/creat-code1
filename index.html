@@ -3,227 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Claude - AI Assistant by Anthropic</title>
-    <style>
-        /* ── 기본 리셋 & 글꼴 ── */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            color: #f0f0f0;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* ── 네비게이션 ── */
-        nav {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 20px 60px;
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(10px);
-            position: sticky; top: 0; z-index: 100;
-            transition: background 0.3s, box-shadow 0.3s;
-        }
-        nav.scrolled {
-            background: rgba(15, 12, 41, 0.95);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-        }
-        nav .logo { font-size: 1.6rem; font-weight: 700; color: #d4a76a; cursor: pointer; }
-        nav ul { list-style: none; display: flex; gap: 30px; }
-        nav ul li a {
-            text-decoration: none; color: #ccc; font-size: 0.95rem;
-            transition: color 0.3s; position: relative;
-        }
-        nav ul li a::after {
-            content: ''; position: absolute; bottom: -4px; left: 0;
-            width: 0; height: 2px; background: #d4a76a; transition: width 0.3s;
-        }
-        nav ul li a:hover { color: #d4a76a; }
-        nav ul li a:hover::after { width: 100%; }
-        nav ul li a.active { color: #d4a76a; }
-        nav ul li a.active::after { width: 100%; }
-
-        /* 모바일 햄버거 */
-        .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; }
-        .hamburger span { display: block; width: 25px; height: 3px; background: #d4a76a; border-radius: 3px; transition: 0.3s; }
-        .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 6px); }
-        .hamburger.open span:nth-child(2) { opacity: 0; }
-        .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -6px); }
-
-        /* ── 히어로 섹션 ── */
-        .hero {
-            display: flex; flex-direction: column; align-items: center;
-            justify-content: center; text-align: center;
-            padding: 120px 20px 80px;
-        }
-        .hero-icon {
-            width: 120px; height: 120px; border-radius: 50%;
-            background: linear-gradient(135deg, #d4a76a, #b07d3b);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 3rem; margin-bottom: 30px;
-            box-shadow: 0 0 40px rgba(212,167,106,0.4);
-            animation: float 3s ease-in-out infinite;
-        }
-        @keyframes float {
-            0%,100% { transform: translateY(0); }
-            50%     { transform: translateY(-12px); }
-        }
-        .hero h1 { font-size: 3rem; margin-bottom: 15px; }
-        .hero h1 span { color: #d4a76a; }
-
-        /* 타이핑 효과 */
-        .typing-text {
-            font-size: 1.15rem; color: #bbb; max-width: 620px; line-height: 1.7;
-            min-height: 60px;
-        }
-        .cursor { animation: blink 0.7s infinite; }
-        @keyframes blink { 0%,100%{ opacity:1; } 50%{ opacity:0; } }
-
-        .hero .btn {
-            margin-top: 35px; padding: 14px 40px;
-            background: #d4a76a; color: #1a1a2e; border: none; border-radius: 30px;
-            font-size: 1rem; font-weight: 600; cursor: pointer;
-            text-decoration: none; transition: transform 0.3s, box-shadow 0.3s;
-        }
-        .hero .btn:hover { transform: scale(1.05); box-shadow: 0 8px 25px rgba(212,167,106,0.5); }
-
-        /* ── 스크롤 애니메이션 (fade-in) ── */
-        .fade-in {
-            opacity: 1; transform: translateY(0);
-            transition: opacity 0.7s ease, transform 0.7s ease;
-        }
-        .fade-in.visible {
-            opacity: 1; transform: translateY(0);
-        }
-
-        /* ── 소개 & 공통 섹션 ── */
-        section { padding: 80px 60px; }
-        .section-title { text-align: center; font-size: 2rem; margin-bottom: 50px; }
-        .section-title span { color: #d4a76a; }
-
-        /* ── 특징 카드 ── */
-        .features { display: grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap: 30px; max-width: 1100px; margin: 0 auto; }
-        .card {
-            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px; padding: 35px 28px; text-align: center;
-            transition: transform 0.3s, border-color 0.3s;
-        }
-        .card:hover { transform: translateY(-8px); border-color: #d4a76a; }
-        .card .icon { font-size: 2.4rem; margin-bottom: 18px; }
-        .card h3 { font-size: 1.2rem; margin-bottom: 12px; color: #d4a76a; }
-        .card p { font-size: 0.92rem; color: #aaa; line-height: 1.6; }
-
-        /* ── 모델 비교 테이블 ── */
-        .table-wrap { max-width: 900px; margin: 0 auto; overflow-x: auto; }
-        table {
-            width: 100%; border-collapse: collapse;
-            background: rgba(255,255,255,0.04); border-radius: 12px; overflow: hidden;
-        }
-        th, td { padding: 16px 20px; text-align: center; }
-        th { background: rgba(212,167,106,0.15); color: #d4a76a; font-weight: 600; }
-        td { border-top: 1px solid rgba(255,255,255,0.06); color: #ccc; font-size: 0.92rem; }
-        tr:hover td { background: rgba(255,255,255,0.03); }
-
-        /* ── FAQ 아코디언 ── */
-        .faq { max-width: 760px; margin: 0 auto; }
-        .faq-item {
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 12px; margin-bottom: 14px; overflow: hidden;
-            transition: border-color 0.3s;
-        }
-        .faq-item.open { border-color: #d4a76a; }
-        .faq-question {
-            cursor: pointer; padding: 20px 24px;
-            font-size: 1.05rem; font-weight: 600; color: #eee;
-            display: flex; justify-content: space-between; align-items: center;
-            user-select: none;
-        }
-        .faq-question .arrow {
-            font-size: 1.4rem; color: #d4a76a; transition: transform 0.3s;
-        }
-        .faq-item.open .faq-question .arrow { transform: rotate(45deg); }
-        .faq-answer {
-            max-height: 0; overflow: hidden;
-            transition: max-height 0.4s ease, padding 0.4s ease;
-            padding: 0 24px;
-            color: #aaa; line-height: 1.7; font-size: 0.93rem;
-        }
-        .faq-item.open .faq-answer {
-            max-height: 200px; padding: 0 24px 20px;
-        }
-        .faq-answer a { color: #d4a76a; text-decoration: none; }
-
-        /* ── 다크/라이트 토글 ── */
-        .theme-toggle {
-            position: fixed; bottom: 30px; right: 30px;
-            width: 50px; height: 50px; border-radius: 50%;
-            background: #d4a76a; color: #1a1a2e; border: none;
-            font-size: 1.4rem; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            transition: transform 0.3s;
-            z-index: 200;
-        }
-        .theme-toggle:hover { transform: scale(1.1); }
-
-        /* 라이트 모드 */
-        body.light { background: linear-gradient(135deg, #f5f0e8, #e8ddd0, #f0ebe3); color: #333; }
-        body.light nav { background: rgba(255,255,255,0.8); }
-        body.light nav.scrolled { background: rgba(245,240,232,0.98); }
-        body.light nav ul li a { color: #555; }
-        body.light .hero h1 { color: #222; }
-        body.light .typing-text { color: #666; }
-        body.light .card { background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.08); }
-        body.light .card p { color: #666; }
-        body.light td { color: #555; }
-        body.light table { background: rgba(0,0,0,0.03); }
-        body.light .faq-item { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.08); }
-        body.light .faq-question { color: #333; }
-        body.light .faq-answer { color: #666; }
-        body.light footer { color: #999; border-color: rgba(0,0,0,0.06); }
-        body.light .theme-toggle { background: #302b63; color: #f0f0f0; }
-
-        /* ── 맨 위로 버튼 ── */
-        .scroll-top {
-            position: fixed; bottom: 90px; right: 30px;
-            width: 45px; height: 45px; border-radius: 50%;
-            background: rgba(212,167,106,0.2); border: 1px solid #d4a76a;
-            color: #d4a76a; font-size: 1.2rem; cursor: pointer;
-            opacity: 0; pointer-events: none;
-            transition: opacity 0.3s, transform 0.3s; z-index: 200;
-        }
-        .scroll-top.show { opacity: 1; pointer-events: all; }
-        .scroll-top:hover { transform: scale(1.1); background: rgba(212,167,106,0.4); }
-
-        /* ── 카운트업 ── */
-        .stats { display: flex; justify-content: center; gap: 60px; flex-wrap: wrap; margin-top: 50px; }
-        .stat-item { text-align: center; }
-        .stat-number { font-size: 2.6rem; font-weight: 700; color: #d4a76a; }
-        .stat-label { font-size: 0.9rem; color: #aaa; margin-top: 6px; }
-
-        /* ── 푸터 ── */
-        footer {
-            text-align: center; padding: 40px 20px;
-            color: #666; font-size: 0.85rem;
-            border-top: 1px solid rgba(255,255,255,0.06);
-        }
-        footer a { color: #d4a76a; text-decoration: none; }
-
-        /* ── 반응형 ── */
-        @media (max-width: 768px) {
-            nav { padding: 16px 24px; }
-            nav ul {
-                position: fixed; top: 0; right: -100%; width: 260px; height: 100vh;
-                flex-direction: column; padding: 80px 30px 30px;
-                background: rgba(15,12,41,0.98); transition: right 0.3s;
-                gap: 24px;
-            }
-            nav ul.open { right: 0; }
-            .hamburger { display: flex; z-index: 110; }
-            .hero h1 { font-size: 2rem; }
-            section { padding: 60px 24px; }
-            .stats { gap: 30px; }
-        }
-    </style>
+    <meta name="description" content="GenSpark 사용법 완벽 가이드. 설치부터 고급 기능 활용까지, 젠스파이크를 100% 활용하는 방법을 알아보세요.">
+    <title>GenSpark 가이드 - 젠스파이크 사용법의 모든 것</title>
+    <link rel="stylesheet" href="style.css">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8514810342316349"
      crossorigin="anonymous"></script>
 </head>
@@ -231,156 +13,110 @@
 
 <!-- 네비게이션 -->
 <nav id="navbar">
-    <div class="logo" onclick="scrollToTop()">Claude</div>
+    <div class="logo" onclick="scrollToTop()">GenSpark Guide</div>
     <button class="hamburger" id="hamburger" aria-label="메뉴 열기">
         <span></span><span></span><span></span>
     </button>
     <ul id="navMenu">
-        <li><a href="#about" class="nav-link">소개</a></li>
-        <li><a href="#features" class="nav-link">특 징</a></li>
-        <li><a href="#models" class="nav-link">모델</a></li>
-        <li><a href="#circuit-checker" class="nav-link">회로 검증</a></li>
-        <li><a href="#contact" class="nav-link">제휴 문의</a></li>
+        <li><a href="#intro" class="nav-link">소개</a></li>
+        <li><a href="#guide" class="nav-link">사용법</a></li>
+        <li><a href="#tips" class="nav-link">팁</a></li>
         <li><a href="#faq" class="nav-link">FAQ</a></li>
+        <li><a href="#contact" class="nav-link">문의</a></li>
     </ul>
 </nav>
 
 <!-- 히어로 -->
 <section class="hero" id="hero">
-    <div class="hero-icon">🤖</div>
-    <h1>안녕하세요, 저는 <span>Claude</span>입니다</h1>
+    <div class="hero-icon">⚡</div>
+    <h1>GenSpark <span>완벽 사용 가이드</span></h1>
     <div class="typing-text" id="typingText"></div>
-    <a class="btn" href="https://claude.ai" target="_blank">Claude 사용해 보기</a>
+    <a class="btn" href="#guide">가이드 보러가기</a>
 </section>
 
-<!-- 소개 + 카운트업 -->
-<section id="about">
+<!-- 소개 (텍스트 중심 - 애드센스 유리) -->
+<section id="intro">
     <div class="fade-in">
-        <h2 class="section-title"><span>Claude</span>란 무엇인가요?</h2>
-        <p style="max-width:800px;margin:0 auto;text-align:center;color:#aaa;line-height:1.8;">
-            Claude는 Anthropic이 개발한 대규모 언어 모델(LLM) 기반의 AI 어시스턴트입니다.
-            안전하고 유용하며 정직한 AI를 목표로 설 계되었으며, 웹 채팅, API, 그리고 Claude Code와 같은
-            다양한 인터페이스를 통해 이용할 수 있습 니다. 현재 최신 모델은 <strong style="color:#d4a76a;">Claude Opus 4.6</strong>이며,
-            Claude 4 모델 패밀리에 속합니다.
-        </p>
-    </div>
-    <div class="stats fade-in">
-        <div class="stat-item">
-            <div class="stat-number" data-target="5">0</div>
-            <div class="stat-label">모델 라인업</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-number" data-target="100">0</div>
-            <div class="stat-label">+ 지원 언어</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-number" data-target="3">0</div>
-            <div class="stat-label">접근 방식 (웹·API·CLI)</div>
+        <h2 class="section-title">GenSpark란 <span>무엇인가요?</span></h2>
+        <div class="content-block">
+            <p>
+                GenSpark(젠스파이크)는 차세대 AI 기반 코딩 및 생산성 도구로, 개발자와 크리에이터가 더 빠르고 효율적으로 아이디어를 실현할 수 있도록 돕습니다. 
+                단순한 코드 생성을 넘어, 프로젝트 전체의 구조를 설계하고 복잡한 로직을 최적화하는 데 특화되어 있습니다.
+            </p>
+            <p>
+                이 가이드에서는 GenSpark의 기초적인 설치 방법부터 실무에서 바로 적용할 수 있는 고급 활용 팁까지 상세하게 다룹니다. 
+                AI 도구를 처음 접하는 분들도 쉽게 따라할 수 있도록 단계별로 구성되었습니다.
+            </p>
         </div>
     </div>
 </section>
 
-<!-- 특징 카드 -->
-<section id="features">
-    <h2 class="section-title fade-in">주요 <span>특 징</span></h2>
+<!-- 사용법 가이드 (이미지 + 텍스트) -->
+<section id="guide">
+    <h2 class="section-title fade-in">단계별 <span>사용 방법</span></h2>
+    
+    <div class="guide-step fade-in">
+        <div class="step-text">
+            <h3>STEP 1. 회원가입 및 설치</h3>
+            <p>
+                GenSpark 공식 홈페이지에 접속하여 계정을 생성합니다. 대시보드 접근 권한을 얻은 후, 
+                사용 중인 OS(Windows, Mac, Linux)에 맞는 클라이언트를 다운로드하여 설치하세요.
+                초기 설정 마법사를 통해 기본 개발 환경을 세팅할 수 있습니다.
+            </p>
+        </div>
+        <div class="step-image">
+            <!-- 이미지 플레이스홀더: 실제 사용 스크린샷으로 교체 권장 -->
+            <div class="placeholder-img">설치 화면 스크린샷 위치</div>
+        </div>
+    </div>
+
+    <div class="guide-step fade-in">
+        <div class="step-text">
+            <h3>STEP 2. 프로젝트 생성 및 AI 프롬프트 입력</h3>
+            <p>
+                'New Project' 버튼을 클릭하여 새 작업 공간을 만듭니다. 채팅창에 만들고자 하는 앱이나 기능에 대해 
+                자연어로 설명하세요. 예: "투두 리스트 앱을 만들어줘, 다크 모드 기능도 넣어줘."
+                구체적으로 적을수록 AI가 더 정확한 결과를 도출합니다.
+            </p>
+        </div>
+        <div class="step-image">
+            <div class="placeholder-img">프로젝트 생성 화면 스크린샷 위치</div>
+        </div>
+    </div>
+
+    <div class="guide-step fade-in">
+        <div class="step-text">
+            <h3>STEP 3. 코드 검토 및 실시간 프리뷰</h3>
+            <p>
+                GenSpark가 생성한 코드는 오른쪽 에디터 화면에 즉시 반영됩니다. 
+                'Preview' 탭을 눌러 실제 작동 모습을 실시간으로 확인하고, 수정이 필요한 부분은 
+                다시 AI에게 요청하여 다듬을 수 있습니다.
+            </p>
+        </div>
+        <div class="step-image">
+            <div class="placeholder-img">프리뷰 화면 스크린샷 위치</div>
+        </div>
+    </div>
+</section>
+
+<!-- 꿀팁 섹션 (카드 형태) -->
+<section id="tips">
+    <h2 class="section-title fade-in">전문가 <span>활용 팁</span></h2>
     <div class="features">
         <div class="card fade-in">
-            <div class="icon">🧠</div>
-            <h3>뛰어난 추론 능력</h3>
-            <p>복잡한 논리적 문제, 수학, 코딩 등 다 양한 분야에서 깊이 있는 사고를 제공합니다.</p>
+            <div class="icon">💡</div>
+            <h3>구체적인 프롬프트</h3>
+            <p>두루뭉술한 요청보다는 기능, 디자인, 기술 스택을 명시하면 훨씬 퀄리티 높은 결과물을 얻을 수 있습니다.</p>
         </div>
         <div class="card fade-in">
-            <div class="icon">✍️</div>
-            <h3>창의적 글쓰기</h3>
-            <p>소설, 시, 블로그 포스트 등 다양한 형 식의 창작 콘텐츠를 생성할 수 있습니다.</p>
+            <div class="icon">🔄</div>
+            <h3>반복적인 개선</h3>
+            <p>한 번에 완벽한 결과물을 기대하기보다, 생성된 결과를 보고 피드백을 주며 점진적으로 개선하는 것이 좋습니다.</p>
         </div>
         <div class="card fade-in">
-            <div class="icon">💻</div>
-            <h3>코드 작성 & 디버깅</h3>
-            <p>여러 프로그래밍 언어를 지원하며, Claude Code를 통해 터미널에서 직접 코딩 작업을 수행합니 다.</p>
-        </div>
-        <div class="card fade-in">
-            <div class="icon">🌍</div>
-            <h3>다국어 지원</h3>
-            <p>한국어를 포함한 다양한 언어로 자연스 러운 대화와 번역이 가능합니다.</p>
-        </div>
-        <div class="card fade-in">
-            <div class="icon">🔒</div>
-            <h3>안전성 최우선</h3>
-            <p>Anthropic의 안전 연구를 바탕으로, 유 해한 콘텐츠 생성을 최소화하도록 설계되었습니다.</p>
-        </div>
-        <div class="card fade-in">
-            <div class="icon">📄</div>
-            <h3>긴 문서 처리</h3>
-            <p>긴 문서를 분석하고 요약하며, 핵심 내 용을 빠르게 파악할 수 있습니다.</p>
-        </div>
-    </div>
-</section>
-
-<!-- 모델 비교 -->
-<section id="models">
-    <div class="fade-in">
-        <h2 class="section-title">Claude 4 <span>모 델 패밀리</span></h2>
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr><th>모델</th><th>특징</th><th>API 모델명</th></tr>
-                </thead>
-                <tbody>
-                    <tr><td><strong>Claude Opus 4.6</strong></td><td>최고 성능 · 복잡한 문제 해결</td><td>claude-opus-4-6</td></tr>
-                    <tr><td>Claude Opus 4.5</td><td>고성능 범용 모델</td><td>-</td></tr>
-                    <tr><td>Claude Opus 4.1</td><td>고급 추론</td><td>-</td></tr>
-                    <tr><td>Claude Opus 4</td><td>안정적인 기반 모델</td><td>-</td></tr>
-                    <tr><td>Claude Sonnet 4</td><td>속도와 성능의 균형</td><td>-</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</section>
-
-<!-- 회로 검증 AI 섹션 -->
-<section id="circuit-checker">
-    <div class="fade-in">
-        <h2 class="section-title"><span>AI 회로</span> 검증기</h2>
-        <p style="text-align:center; color:#aaa; margin-bottom: 30px; max-width: 600px; margin-left: auto; margin-right: auto;">
-            카메라를 통해 회로도를 비추면 AI가 실시간으로 분석하여 맞는지 아닌지 판별합니다.
-        </p>
-        <div class="circuit-wrap">
-            <div id="webcam-container"></div>
-            <div id="label-container"></div>
-            <button type="button" class="btn lab-btn" id="start-btn" onclick="initCircuitAI()">검증 시작하기</button>
-        </div>
-    </div>
-</section>
-
-<!-- 제휴 문의 -->
-<section id="contact">
-    <div class="fade-in">
-        <h2 class="section-title"><span>제휴 문의</span>하기</h2>
-        <div class="contact-wrap">
-            <form action="https://formspree.io/f/mvzwypvo" method="POST" id="contactForm">
-                <div class="form-group">
-                    <label for="name">이름 / 기업명</label>
-                    <input type="text" name="name" id="name" placeholder="홍길동 / (주)앤스로픽" required>
-                </div>
-                <div class="form-group">
-                    <label for="email">이메일 주소</label>
-                    <input type="email" name="_replyto" id="email" placeholder="example@domain.com" required>
-                </div>
-                <div class="form-group">
-                    <label for="subject">문의 유형</label>
-                    <select name="subject" id="subject">
-                        <option value="partnership">비즈니스 제휴</option>
-                        <option value="api">API 도입 문의</option>
-                        <option value="etc">기타 문의</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="message">문의 내용</label>
-                    <textarea name="message" id="message" rows="5" placeholder="제휴 제안 내용을 상세히 입력해 주세요." required></textarea>
-                </div>
-                <button type="submit" class="btn submit-btn">문의 보내기</button>
-            </form>
+            <div class="icon">📚</div>
+            <h3>문서 활용</h3>
+            <p>GenSpark가 제공하는 공식 문서를 참고하여 단축키와 숨겨진 기능들을 익혀두면 작업 속도가 배로 빨라집니다.</p>
         </div>
     </div>
 </section>
@@ -391,32 +127,48 @@
     <div class="faq fade-in">
         <div class="faq-item">
             <div class="faq-question">
-                <span>Claude는 어디서 사용할 수 있나요?</span>
+                <span>GenSpark는 무료인가요?</span>
                 <span class="arrow">+</span>
             </div>
-            <div class="faq-answer">웹·모바일·데스크톱 채팅 인터페이스, API, 그리고 터미널 기반의 Claude Code를 통해 사용할 수 있습니다.</div>
+            <div class="faq-answer">기본적인 기능은 무료로 제공되며, 고급 기능과 더 빠른 처리를 위한 유료 플랜이 별도로 존재합니다.</div>
         </div>
         <div class="faq-item">
             <div class="faq-question">
-                <span>Claude는 이전 대화를 기억하나 요?</span>
+                <span>코딩을 몰라도 사용할 수 있나요?</span>
                 <span class="arrow">+</span>
             </div>
-            <div class="faq-answer">아니요. Claude는 대화 간 정보를 보존하지 않습니다. 각 대화는 독립적 으로 처리됩니다.</div>
+            <div class="faq-answer">네, 가능합니다. 자연어로 명령을 내리면 AI가 코드를 작성해주므로 비전공자도 앱을 만들 수 있습니다.</div>
         </div>
         <div class="faq-item">
             <div class="faq-question">
-                <span>Claude Code란 무엇인가요?</span>
+                <span>상업적 이용이 가능한가요?</span>
                 <span class="arrow">+</span>
             </div>
-            <div class="faq-answer">Claude Code는 개발자가 터미널에서 직접 Claude에게 코딩 작업을 위임할 수 있는 에이전틱 코딩 도구입니다.
-                자세한 내용은 <a href="https://docs.anthropic.com/en/docs/claude-code">공식 문서</a>를  참고하세요.</div>
+            <div class="faq-answer">생성된 결과물의 저작권 정책은 사용 중인 플랜에 따라 다를 수 있으므로 약관을 확인해야 합니다.</div>
         </div>
-        <div class="faq-item">
-            <div class="faq-question">
-                <span>API는 어떻게 사용하나요?</span>
-                <span class="arrow">+</span>
-            </div>
-            <div class="faq-answer">Anthropic API 문서(<a href="https://docs.anthropic.com">docs.anthropic.com</a>)에서 자세한 가이드를 확인하실 수 있습니다.</div>
+    </div>
+</section>
+
+<!-- 제휴/문의 폼 -->
+<section id="contact">
+    <div class="fade-in">
+        <h2 class="section-title"><span>문의</span>하기</h2>
+        <div class="contact-wrap">
+            <form action="https://formspree.io/f/mvzwypvo" method="POST" id="contactForm">
+                <div class="form-group">
+                    <label for="name">이름</label>
+                    <input type="text" name="name" id="name" placeholder="홍길동" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">이메일</label>
+                    <input type="email" name="_replyto" id="email" placeholder="example@domain.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">문의 내용</label>
+                    <textarea name="message" id="message" rows="5" placeholder="GenSpark 사용 관련 문의사항을 남겨주세요." required></textarea>
+                </div>
+                <button type="submit" class="btn submit-btn">문의 보내기</button>
+            </form>
         </div>
     </div>
 </section>
@@ -424,7 +176,7 @@
 <!-- 댓글 섹션 -->
 <section id="comments">
     <div class="fade-in">
-        <h2 class="section-title"><span>의견</span> 나누기</h2>
+        <h2 class="section-title"><span>사용자</span> 후기</h2>
         <div id="disqus_thread"></div>
         <script>
             (function() { 
@@ -440,7 +192,11 @@
 
 <!-- 푸터 -->
 <footer>
-    <p>&copy; 2026 Claude by <a href="https://www.anthropic.com" target="_blank">Anthropic</a>. 이 페이 지는 Claude가 생성한 소개 페이지입니다.</p>
+    <p>&copy; 2026 GenSpark Guide. This is an unofficial guide fan site.</p>
+    <div style="margin-top: 10px; font-size: 0.8rem;">
+        <a href="privacy.html" style="color: #888; text-decoration: none;">개인정보처리방침</a> | 
+        <a href="#" style="color: #888; text-decoration: none;">이용약관</a>
+    </div>
 </footer>
 
 <!-- 맨 위로 버튼 -->
@@ -449,178 +205,6 @@
 <!-- 다크/라이트 토글 -->
 <button class="theme-toggle" id="themeToggle" aria-label="테마 전환">🌙</button>
 
-
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
-<!-- ===================== JavaScript ===================== -->
-<script>
-    // ─── 1. 타이핑 효과 ───
-    const typingEl = document.getElementById('typingText');
-    const phrases = [
-        'Anthropic이 만든 AI 어시스턴트입니다.',
-        '복잡한 문제를 함께 풀어드립니다.',
-        '창의적인 글쓰기를 도와드립니다.',
-        '코드를 작성하고 디버깅합니다.',
-        '한국어도 자연스럽게 대화할 수 있습니다.'
-    ];
-    let phraseIdx = 0, charIdx = 0, isDeleting = false;
-
-    function typeEffect() {
-        const current = phrases[phraseIdx];
-        if (!isDeleting) {
-            typingEl.innerHTML = current.slice(0, charIdx + 1) + '<span class="cursor">|</span>';
-            charIdx++;
-            if (charIdx === current.length) {
-                isDeleting = true;
-                setTimeout(typeEffect, 1800);   //  완성 후 잠시 멈춤
-                return;
-            }
-            setTimeout(typeEffect, 60);
-        } else {
-            typingEl.innerHTML = current.slice(0, charIdx - 1) + '<span class="cursor">|</span>';
-            charIdx--;
-            if (charIdx === 0) {
-                isDeleting = false;
-                phraseIdx = (phraseIdx + 1) % phrases.length;
-                setTimeout(typeEffect, 400);
-                return;
-            }
-            setTimeout(typeEffect, 30);
-        }
-    }
-    typeEffect();
-
-    // ─── 2. 스크롤 시 fade-in (Intersection Observer) ───
-    const faders = document.querySelectorAll('.fade-in');
-    const observerOptions = { threshold: 0.15, rootMargin: '0px 0px -50px 0px' };
-    const fadeObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-                fadeObserver.unobserve(entry.target);
-            }
-        });
-    }, observerOptions);
-    faders.forEach(el => fadeObserver.observe(el));
-
-    // ─── 3. 네비게이션 스크롤 효과 & 활성 링크 ───
-    const navbar = document.getElementById('navbar');
-    const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('.nav-link');
-
-    window.addEventListener('scroll', () => {
-        // 네비게이션 배경 변경
-        navbar.classList.toggle('scrolled', window.scrollY > 60);
-
-        // 맨 위로 버튼 표시/숨김
-        document.getElementById('scrollTopBtn')
-            .classList.toggle('show', window.scrollY > 400);
-
-        // 현재 섹션에 따라 네비 활성화
-        let current = '';
-        sections.forEach(sec => {
-            if (window.scrollY >= sec.offsetTop - 200) current = sec.getAttribute('id');
-        });
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === '#' + current) link.classList.add('active');
-        });
-    });
-
-    // ─── 4. 부드러운 스크롤 ───
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const target = document.querySelector(link.getAttribute('href'));
-            target.scrollIntoView({ behavior: 'smooth' });
-            // 모바일 메뉴 닫기
-            navMenu.classList.remove('open');
-            hamburger.classList.remove('open');
-        });
-    });
-
-    function scrollToTop() {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-    document.getElementById('scrollTopBtn').addEventListener('click', scrollToTop);
-
-    // ─── 5. 모바일 햄버거 메뉴 ───
-    const hamburger = document.getElementById('hamburger');
-    const navMenu = document.getElementById('navMenu');
-    hamburger.addEventListener('click', () => {
-        hamburger.classList.toggle('open');
-        navMenu.classList.toggle('open');
-    });
-
-    // ─── 6. FAQ 아코디언 (JS 제어) ───
-    document.querySelectorAll('.faq-question').forEach(question => {
-        question.addEventListener('click', () => {
-            const item = question.parentElement;
-            // 다른 열린 항목 닫기
-            document.querySelectorAll('.faq-item').forEach(other => {
-                if (other !== item) other.classList.remove('open');
-            });
-            item.classList.toggle('open');
-        });
-    });
-
-    // ─── 7. 숫자 카운트업 애니메이션 ───
-    const statNumbers = document.querySelectorAll('.stat-number');
-    let statsCounted = false;
-
-    const statsObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting && !statsCounted) {
-                statsCounted = true;
-                statNumbers.forEach(num => {
-                    const target = +num.getAttribute('data-target');
-                    const duration = 1500;
-                    const step = target / (duration / 16);
-                    let current = 0;
-                    const counter = setInterval(() => {
-                        current += step;
-                        if (current >= target) {
-                            num.textContent = target;
-                            clearInterval(counter);
-                        } else {
-                            num.textContent = Math.floor(current);
-                        }
-                    }, 16);
-                });
-            }
-        });
-    }, { threshold: 0.5 });
-    statNumbers.forEach(el => statsObserver.observe(el));
-
-    // ─── 8. 다크/라이트 테마 토글 ───
-    const themeToggle = document.getElementById('themeToggle');
-    const savedTheme = localStorage.getItem('claude-theme');
-    if (savedTheme === 'light') {
-        document.body.classList.add('light');
-        themeToggle.textContent = '☀️';
-    }
-    themeToggle.addEventListener('click', () => {
-        document.body.classList.toggle('light');
-        const isLight = document.body.classList.contains('light');
-        themeToggle.textContent = isLight ? '☀️' : '🌙';
-        localStorage.setItem('claude-theme', isLight ? 'light' : 'dark');
-    });
-
-    // ─── 9. 카드 마우스 기울기 효과 (tilt) ───
-    document.querySelectorAll('.card').forEach(card => {
-        card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const rotateX = ((y / rect.height) - 0.5) * -10;
-            const rotateY = ((x / rect.width) - 0.5) * 10;
-            card.style.transform = perspective(600px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px);
-        });
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = '';
-        });
-    });
-</script>
-
+<script src="main.js"></script>
 </body>
 </html>

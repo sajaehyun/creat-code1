@@ -1,11 +1,11 @@
 // ─── 1. 타이핑 효과 ───
 const typingEl = document.getElementById('typingText');
 const phrases = [
-    'Anthropic이 만든 AI 어시스턴트입니다.',
-    '복잡한 문제를 함께 풀어드립니다.',
-    '창의적인 글쓰기를 도와드립니다.',
-    '코드를 작성하고 디버깅합니다.',
-    '한국어도 자연스럽게 대화할 수 있습니다.'
+    'AI로 코딩의 한계를 넘어서세요.',
+    '복잡한 프로젝트도 자연어로 설계합니다.',
+    'GenSpark와 함께 아이디어를 현실로 만드세요.',
+    '개발 생산성을 10배 높여주는 도구입니다.',
+    '초보자부터 전문가까지, 모두를 위한 가이드.'
 ];
 let phraseIdx = 0, charIdx = 0, isDeleting = false;
 
@@ -97,37 +97,9 @@ document.querySelectorAll('.faq-question').forEach(question => {
     });
 });
 
-// ─── 6. 숫자 카운트업 애니메이션 ───
-const statNumbers = document.querySelectorAll('.stat-number');
-let statsCounted = false;
-
-const statsObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting && !statsCounted) {
-            statsCounted = true;
-            statNumbers.forEach(num => {
-                const target = +num.getAttribute('data-target');
-                const duration = 1500;
-                const step = target / (duration / 16);
-                let current = 0;
-                const counter = setInterval(() => {
-                    current += step;
-                    if (current >= target) {
-                        num.textContent = target;
-                        clearInterval(counter);
-                    } else {
-                        num.textContent = Math.floor(current);
-                    }
-                }, 16);
-            });
-        }
-    });
-}, { threshold: 0.5 });
-statNumbers.forEach(el => statsObserver.observe(el));
-
-// ─── 7. 다크/라이트 테마 토글 ───
+// ─── 6. 다크/라이트 테마 토글 ───
 const themeToggle = document.getElementById('themeToggle');
-const savedTheme = localStorage.getItem('claude-theme');
+const savedTheme = localStorage.getItem('genspark-theme'); // 키 이름 변경
 if (savedTheme === 'light') {
     document.body.classList.add('light');
     themeToggle.textContent = '☀️';
@@ -136,10 +108,10 @@ themeToggle.addEventListener('click', () => {
     document.body.classList.toggle('light');
     const isLight = document.body.classList.contains('light');
     themeToggle.textContent = isLight ? '☀️' : '🌙';
-    localStorage.setItem('claude-theme', isLight ? 'light' : 'dark');
+    localStorage.setItem('genspark-theme', isLight ? 'light' : 'dark');
 });
 
-// ─── 8. 카드 마우스 기울기 효과 (tilt) ───
+// ─── 7. 카드 마우스 기울기 효과 (tilt) ───
 document.querySelectorAll('.card').forEach(card => {
     card.addEventListener('mousemove', (e) => {
         const rect = card.getBoundingClientRect();
@@ -154,74 +126,15 @@ document.querySelectorAll('.card').forEach(card => {
     });
 });
 
-// ─── 9. 회로 검증 AI (Teachable Machine) ───
-const CIRCUIT_MODEL_URL = "https://teachablemachine.withgoogle.com/models/-QV2XmXIr/";
-let circuitModel, circuitWebcam, circuitLabelContainer, circuitMaxPredictions;
-
-async function initCircuitAI() {
-    const startBtn = document.getElementById('start-btn');
-    startBtn.disabled = true;
-    startBtn.textContent = "모델 로딩 중...";
-
-    const modelURL = CIRCUIT_MODEL_URL + "model.json";
-    const metadataURL = CIRCUIT_MODEL_URL + "metadata.json";
-
-    try {
-        circuitModel = await tmImage.load(modelURL, metadataURL);
-        circuitMaxPredictions = circuitModel.getTotalClasses();
-
-        // 웹캠 설정
-        const flip = true;
-        circuitWebcam = new tmImage.Webcam(400, 400, flip);
-        await circuitWebcam.setup();
-        await circuitWebcam.play();
-        window.requestAnimationFrame(circuitLoop);
-
-        // UI 업데이트
-        document.getElementById("webcam-container").appendChild(circuitWebcam.canvas);
-        circuitLabelContainer = document.getElementById("label-container");
-        circuitLabelContainer.innerHTML = "";
-        for (let i = 0; i < circuitMaxPredictions; i++) {
-            const div = document.createElement("div");
-            div.className = "label-item";
-            div.innerHTML = `<span class="label-name"></span><span class="label-prob"></span>`;
-            circuitLabelContainer.appendChild(div);
+// ─── 8. 스크롤 시 fade-in (Intersection Observer) ───
+const faders = document.querySelectorAll('.fade-in');
+const observerOptions = { threshold: 0.15, rootMargin: '0px 0px -50px 0px' };
+const fadeObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            fadeObserver.unobserve(entry.target);
         }
-        
-        startBtn.style.display = "none";
-    } catch (e) {
-        console.error(e);
-        alert("웹캠을 시작할 수 없거나 모델을 불러오는데 실패했습니다.");
-        startBtn.disabled = false;
-        startBtn.textContent = "검증 시작하기";
-    }
-}
-
-async function circuitLoop() {
-    if (circuitWebcam) {
-        circuitWebcam.update();
-        await circuitPredict();
-        window.requestAnimationFrame(circuitLoop);
-    }
-}
-
-async function circuitPredict() {
-    const prediction = await circuitModel.predict(circuitWebcam.canvas);
-    for (let i = 0; i < circuitMaxPredictions; i++) {
-        const classPrediction = prediction[i];
-        const item = circuitLabelContainer.childNodes[i];
-        if (item) {
-            const name = item.querySelector(".label-name");
-            const prob = item.querySelector(".label-prob");
-            
-            name.innerText = classPrediction.className;
-            prob.innerText = (classPrediction.probability * 100).toFixed(1) + "%";
-            
-            if (classPrediction.probability > 0.8) {
-                item.classList.add("high");
-            } else {
-                item.classList.remove("high");
-            }
-        }
-    }
-}
+    });
+}, observerOptions);
+faders.forEach(el => fadeObserver.observe(el));
