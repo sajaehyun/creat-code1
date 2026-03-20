@@ -239,6 +239,11 @@ body.light .label-prob { color: #333; }
 }
 
 /* ── 가이드 & 콘텐츠 섹션 ── */
+.sub-page {
+    padding: 120px 60px 80px;
+    min-height: 80vh;
+}
+
 .content-block {
     max-width: 800px;
     margin: 0 auto;
@@ -297,8 +302,48 @@ body.light .label-prob { color: #333; }
     color: #d4a76a;
 }
 
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    max-width: 1200px;
+    margin: 40px auto;
+}
+
+.features-grid .card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 30px;
+    text-align: left;
+    transition: transform 0.3s, border-color 0.3s;
+}
+
+.features-grid .card:hover {
+    transform: translateY(-5px);
+    border-color: #d4a76a;
+}
+
+.features-grid .icon {
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+
+.features-grid h3 {
+    font-size: 1.25rem;
+    color: #d4a76a;
+    margin-bottom: 12px;
+}
+
+.features-grid p {
+    font-size: 0.95rem;
+    color: #aaa;
+    line-height: 1.6;
+}
+
 /* 모바일 대응 추가 */
 @media (max-width: 768px) {
+    .sub-page { padding: 100px 24px 60px; }
     .guide-step, .guide-step:nth-child(even) {
         flex-direction: column;
         text-align: center;
