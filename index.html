@@ -4,7 +4,226 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Claude - AI Assistant by Anthropic</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ── 기본 리셋 & 글꼴 ── */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #f0f0f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── 네비게이션 ── */
+        nav {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 60px;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            position: sticky; top: 0; z-index: 100;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+        nav.scrolled {
+            background: rgba(15, 12, 41, 0.95);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+        nav .logo { font-size: 1.6rem; font-weight: 700; color: #d4a76a; cursor: pointer; }
+        nav ul { list-style: none; display: flex; gap: 30px; }
+        nav ul li a {
+            text-decoration: none; color: #ccc; font-size: 0.95rem;
+            transition: color 0.3s; position: relative;
+        }
+        nav ul li a::after {
+            content: ''; position: absolute; bottom: -4px; left: 0;
+            width: 0; height: 2px; background: #d4a76a; transition: width 0.3s;
+        }
+        nav ul li a:hover { color: #d4a76a; }
+        nav ul li a:hover::after { width: 100%; }
+        nav ul li a.active { color: #d4a76a; }
+        nav ul li a.active::after { width: 100%; }
+
+        /* 모바일 햄버거 */
+        .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; }
+        .hamburger span { display: block; width: 25px; height: 3px; background: #d4a76a; border-radius: 3px; transition: 0.3s; }
+        .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 6px); }
+        .hamburger.open span:nth-child(2) { opacity: 0; }
+        .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -6px); }
+
+        /* ── 히어로 섹션 ── */
+        .hero {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; text-align: center;
+            padding: 120px 20px 80px;
+        }
+        .hero-icon {
+            width: 120px; height: 120px; border-radius: 50%;
+            background: linear-gradient(135deg, #d4a76a, #b07d3b);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 3rem; margin-bottom: 30px;
+            box-shadow: 0 0 40px rgba(212,167,106,0.4);
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%,100% { transform: translateY(0); }
+            50%     { transform: translateY(-12px); }
+        }
+        .hero h1 { font-size: 3rem; margin-bottom: 15px; }
+        .hero h1 span { color: #d4a76a; }
+
+        /* 타이핑 효과 */
+        .typing-text {
+            font-size: 1.15rem; color: #bbb; max-width: 620px; line-height: 1.7;
+            min-height: 60px;
+        }
+        .cursor { animation: blink 0.7s infinite; }
+        @keyframes blink { 0%,100%{ opacity:1; } 50%{ opacity:0; } }
+
+        .hero .btn {
+            margin-top: 35px; padding: 14px 40px;
+            background: #d4a76a; color: #1a1a2e; border: none; border-radius: 30px;
+            font-size: 1rem; font-weight: 600; cursor: pointer;
+            text-decoration: none; transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .hero .btn:hover { transform: scale(1.05); box-shadow: 0 8px 25px rgba(212,167,106,0.5); }
+
+        /* ── 스크롤 애니메이션 (fade-in) ── */
+        .fade-in {
+            opacity: 1; transform: translateY(0);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .fade-in.visible {
+            opacity: 1; transform: translateY(0);
+        }
+
+        /* ── 소개 & 공통 섹션 ── */
+        section { padding: 80px 60px; }
+        .section-title { text-align: center; font-size: 2rem; margin-bottom: 50px; }
+        .section-title span { color: #d4a76a; }
+
+        /* ── 특징 카드 ── */
+        .features { display: grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap: 30px; max-width: 1100px; margin: 0 auto; }
+        .card {
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px; padding: 35px 28px; text-align: center;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+        .card:hover { transform: translateY(-8px); border-color: #d4a76a; }
+        .card .icon { font-size: 2.4rem; margin-bottom: 18px; }
+        .card h3 { font-size: 1.2rem; margin-bottom: 12px; color: #d4a76a; }
+        .card p { font-size: 0.92rem; color: #aaa; line-height: 1.6; }
+
+        /* ── 모델 비교 테이블 ── */
+        .table-wrap { max-width: 900px; margin: 0 auto; overflow-x: auto; }
+        table {
+            width: 100%; border-collapse: collapse;
+            background: rgba(255,255,255,0.04); border-radius: 12px; overflow: hidden;
+        }
+        th, td { padding: 16px 20px; text-align: center; }
+        th { background: rgba(212,167,106,0.15); color: #d4a76a; font-weight: 600; }
+        td { border-top: 1px solid rgba(255,255,255,0.06); color: #ccc; font-size: 0.92rem; }
+        tr:hover td { background: rgba(255,255,255,0.03); }
+
+        /* ── FAQ 아코디언 ── */
+        .faq { max-width: 760px; margin: 0 auto; }
+        .faq-item {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px; margin-bottom: 14px; overflow: hidden;
+            transition: border-color 0.3s;
+        }
+        .faq-item.open { border-color: #d4a76a; }
+        .faq-question {
+            cursor: pointer; padding: 20px 24px;
+            font-size: 1.05rem; font-weight: 600; color: #eee;
+            display: flex; justify-content: space-between; align-items: center;
+            user-select: none;
+        }
+        .faq-question .arrow {
+            font-size: 1.4rem; color: #d4a76a; transition: transform 0.3s;
+        }
+        .faq-item.open .faq-question .arrow { transform: rotate(45deg); }
+        .faq-answer {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.4s ease;
+            padding: 0 24px;
+            color: #aaa; line-height: 1.7; font-size: 0.93rem;
+        }
+        .faq-item.open .faq-answer {
+            max-height: 200px; padding: 0 24px 20px;
+        }
+        .faq-answer a { color: #d4a76a; text-decoration: none; }
+
+        /* ── 다크/라이트 토글 ── */
+        .theme-toggle {
+            position: fixed; bottom: 30px; right: 30px;
+            width: 50px; height: 50px; border-radius: 50%;
+            background: #d4a76a; color: #1a1a2e; border: none;
+            font-size: 1.4rem; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: transform 0.3s;
+            z-index: 200;
+        }
+        .theme-toggle:hover { transform: scale(1.1); }
+
+        /* 라이트 모드 */
+        body.light { background: linear-gradient(135deg, #f5f0e8, #e8ddd0, #f0ebe3); color: #333; }
+        body.light nav { background: rgba(255,255,255,0.8); }
+        body.light nav.scrolled { background: rgba(245,240,232,0.98); }
+        body.light nav ul li a { color: #555; }
+        body.light .hero h1 { color: #222; }
+        body.light .typing-text { color: #666; }
+        body.light .card { background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.08); }
+        body.light .card p { color: #666; }
+        body.light td { color: #555; }
+        body.light table { background: rgba(0,0,0,0.03); }
+        body.light .faq-item { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.08); }
+        body.light .faq-question { color: #333; }
+        body.light .faq-answer { color: #666; }
+        body.light footer { color: #999; border-color: rgba(0,0,0,0.06); }
+        body.light .theme-toggle { background: #302b63; color: #f0f0f0; }
+
+        /* ── 맨 위로 버튼 ── */
+        .scroll-top {
+            position: fixed; bottom: 90px; right: 30px;
+            width: 45px; height: 45px; border-radius: 50%;
+            background: rgba(212,167,106,0.2); border: 1px solid #d4a76a;
+            color: #d4a76a; font-size: 1.2rem; cursor: pointer;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s, transform 0.3s; z-index: 200;
+        }
+        .scroll-top.show { opacity: 1; pointer-events: all; }
+        .scroll-top:hover { transform: scale(1.1); background: rgba(212,167,106,0.4); }
+
+        /* ── 카운트업 ── */
+        .stats { display: flex; justify-content: center; gap: 60px; flex-wrap: wrap; margin-top: 50px; }
+        .stat-item { text-align: center; }
+        .stat-number { font-size: 2.6rem; font-weight: 700; color: #d4a76a; }
+        .stat-label { font-size: 0.9rem; color: #aaa; margin-top: 6px; }
+
+        /* ── 푸터 ── */
+        footer {
+            text-align: center; padding: 40px 20px;
+            color: #666; font-size: 0.85rem;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        footer a { color: #d4a76a; text-decoration: none; }
+
+        /* ── 반응형 ── */
+        @media (max-width: 768px) {
+            nav { padding: 16px 24px; }
+            nav ul {
+                position: fixed; top: 0; right: -100%; width: 260px; height: 100vh;
+                flex-direction: column; padding: 80px 30px 30px;
+                background: rgba(15,12,41,0.98); transition: right 0.3s;
+                gap: 24px;
+            }
+            nav ul.open { right: 0; }
+            .hamburger { display: flex; z-index: 110; }
+            .hero h1 { font-size: 2rem; }
+            section { padding: 60px 24px; }
+            .stats { gap: 30px; }
+        }
+    </style>
 </head>
 <body>
 
@@ -162,6 +381,176 @@
 <!-- 다크/라이트 토글 -->
 <button class="theme-toggle" id="themeToggle" aria-label="테마 전환">🌙</button>
 
-<script src="main.js"></script>
+
+<!-- ===================== JavaScript ===================== -->
+<script>
+    // ─── 1. 타이핑 효과 ───
+    const typingEl = document.getElementById('typingText');
+    const phrases = [
+        'Anthropic이 만든 AI 어시스턴트입니다.',
+        '복잡한 문제를 함께 풀어드립니다.',
+        '창의적인 글쓰기를 도와드립니다.',
+        '코드를 작성하고 디버깅합니다.',
+        '한국어도 자연스럽게 대화할 수 있습니다.'
+    ];
+    let phraseIdx = 0, charIdx = 0, isDeleting = false;
+
+    function typeEffect() {
+        const current = phrases[phraseIdx];
+        if (!isDeleting) {
+            typingEl.innerHTML = current.slice(0, charIdx + 1) + '<span class="cursor">|</span>';
+            charIdx++;
+            if (charIdx === current.length) {
+                isDeleting = true;
+                setTimeout(typeEffect, 1800);   //  완성 후 잠시 멈춤
+                return;
+            }
+            setTimeout(typeEffect, 60);
+        } else {
+            typingEl.innerHTML = current.slice(0, charIdx - 1) + '<span class="cursor">|</span>';
+            charIdx--;
+            if (charIdx === 0) {
+                isDeleting = false;
+                phraseIdx = (phraseIdx + 1) % phrases.length;
+                setTimeout(typeEffect, 400);
+                return;
+            }
+            setTimeout(typeEffect, 30);
+        }
+    }
+    typeEffect();
+
+    // ─── 2. 스크롤 시 fade-in (Intersection Observer) ───
+    const faders = document.querySelectorAll('.fade-in');
+    const observerOptions = { threshold: 0.15, rootMargin: '0px 0px -50px 0px' };
+    const fadeObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                fadeObserver.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+    faders.forEach(el => fadeObserver.observe(el));
+
+    // ─── 3. 네비게이션 스크롤 효과 & 활성 링크 ───
+    const navbar = document.getElementById('navbar');
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    window.addEventListener('scroll', () => {
+        // 네비게이션 배경 변경
+        navbar.classList.toggle('scrolled', window.scrollY > 60);
+
+        // 맨 위로 버튼 표시/숨김
+        document.getElementById('scrollTopBtn')
+            .classList.toggle('show', window.scrollY > 400);
+
+        // 현재 섹션에 따라 네비 활성화
+        let current = '';
+        sections.forEach(sec => {
+            if (window.scrollY >= sec.offsetTop - 200) current = sec.getAttribute('id');
+        });
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === '#' + current) link.classList.add('active');
+        });
+    });
+
+    // ─── 4. 부드러운 스크롤 ───
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = document.querySelector(link.getAttribute('href'));
+            target.scrollIntoView({ behavior: 'smooth' });
+            // 모바일 메뉴 닫기
+            navMenu.classList.remove('open');
+            hamburger.classList.remove('open');
+        });
+    });
+
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    document.getElementById('scrollTopBtn').addEventListener('click', scrollToTop);
+
+    // ─── 5. 모바일 햄버거 메뉴 ───
+    const hamburger = document.getElementById('hamburger');
+    const navMenu = document.getElementById('navMenu');
+    hamburger.addEventListener('click', () => {
+        hamburger.classList.toggle('open');
+        navMenu.classList.toggle('open');
+    });
+
+    // ─── 6. FAQ 아코디언 (JS 제어) ───
+    document.querySelectorAll('.faq-question').forEach(question => {
+        question.addEventListener('click', () => {
+            const item = question.parentElement;
+            // 다른 열린 항목 닫기
+            document.querySelectorAll('.faq-item').forEach(other => {
+                if (other !== item) other.classList.remove('open');
+            });
+            item.classList.toggle('open');
+        });
+    });
+
+    // ─── 7. 숫자 카운트업 애니메이션 ───
+    const statNumbers = document.querySelectorAll('.stat-number');
+    let statsCounted = false;
+
+    const statsObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !statsCounted) {
+                statsCounted = true;
+                statNumbers.forEach(num => {
+                    const target = +num.getAttribute('data-target');
+                    const duration = 1500;
+                    const step = target / (duration / 16);
+                    let current = 0;
+                    const counter = setInterval(() => {
+                        current += step;
+                        if (current >= target) {
+                            num.textContent = target;
+                            clearInterval(counter);
+                        } else {
+                            num.textContent = Math.floor(current);
+                        }
+                    }, 16);
+                });
+            }
+        });
+    }, { threshold: 0.5 });
+    statNumbers.forEach(el => statsObserver.observe(el));
+
+    // ─── 8. 다크/라이트 테마 토글 ───
+    const themeToggle = document.getElementById('themeToggle');
+    const savedTheme = localStorage.getItem('claude-theme');
+    if (savedTheme === 'light') {
+        document.body.classList.add('light');
+        themeToggle.textContent = '☀️';
+    }
+    themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('light');
+        const isLight = document.body.classList.contains('light');
+        themeToggle.textContent = isLight ? '☀️' : '🌙';
+        localStorage.setItem('claude-theme', isLight ? 'light' : 'dark');
+    });
+
+    // ─── 9. 카드 마우스 기울기 효과 (tilt) ───
+    document.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const rotateX = ((y / rect.height) - 0.5) * -10;
+            const rotateY = ((x / rect.width) - 0.5) * 10;
+            card.style.transform = perspective(600px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px);
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = '';
+        });
+    });
+</script>
+
 </body>
 </html>
