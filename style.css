@@ -114,6 +114,54 @@ th { background: rgba(212,167,106,0.15); color: #d4a76a; font-weight: 600; }
 td { border-top: 1px solid rgba(255,255,255,0.06); color: #ccc; font-size: 0.92rem; }
 tr:hover td { background: rgba(255,255,255,0.03); }
 
+/* ── 제휴 문의 섹션 ── */
+.contact-wrap {
+    max-width: 600px;
+    margin: 0 auto;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 40px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.9rem;
+    color: #d4a76a;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.form-group input, 
+.form-group select, 
+.form-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: #eee;
+    font-size: 0.95rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-group input:focus, 
+.form-group select:focus, 
+.form-group textarea:focus {
+    outline: none;
+    border-color: #d4a76a;
+    box-shadow: 0 0 10px rgba(212,167,106,0.2);
+}
+
+.submit-btn {
+    width: 100%;
+    margin-top: 10px;
+}
+
 /* ── FAQ 아코디언 ── */
 .faq { max-width: 760px; margin: 0 auto; }
 .faq-item {
@@ -155,7 +203,7 @@ tr:hover td { background: rgba(255,255,255,0.03); }
 }
 .theme-toggle:hover { transform: scale(1.1); }
 
-/* 라이트 모드 */
+/* 라이트 모드 대응 */
 body.light { background: linear-gradient(135deg, #f5f0e8, #e8ddd0, #f0ebe3); color: #333; }
 body.light nav { background: rgba(255,255,255,0.8); }
 body.light nav.scrolled { background: rgba(245,240,232,0.98); }
@@ -164,6 +212,10 @@ body.light .hero h1 { color: #222; }
 body.light .typing-text { color: #666; }
 body.light .card { background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.08); }
 body.light .card p { color: #666; }
+body.light .contact-wrap { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.08); }
+body.light .form-group input, 
+body.light .form-group select, 
+body.light .form-group textarea { background: #fff; border-color: #ddd; color: #333; }
 body.light td { color: #555; }
 body.light table { background: rgba(0,0,0,0.03); }
 body.light .faq-item { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.08); }
