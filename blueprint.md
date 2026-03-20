@@ -10,6 +10,7 @@ A responsive, modern introduction landing page for Claude, an AI assistant by An
 - **Features Section:** Interactive cards with 3D tilt effect on hover.
 - **Model Comparison:** Clear table layout for different Claude 4 model versions.
 - **Affiliate Inquiry (New):** A professional contact form integrated with Formspree for partnership and API inquiries.
+- **Comments Section:** Integrated Disqus for user feedback and discussions.
 - **FAQ Section:** Functional accordion for frequently asked questions.
 - **Theme Support:** Dark/Light mode toggle with persistence using local storage.
 - **Animations:** Smooth scrolling, 3D tilt, and dynamic typing effects.
