@@ -237,6 +237,7 @@
         <li><a href="#about" class="nav-link">소개</a></li>
         <li><a href="#features" class="nav-link">특 징</a></li>
         <li><a href="#models" class="nav-link">모델</a></li>
+        <li><a href="#circuit-checker" class="nav-link">회로 검증</a></li>
         <li><a href="#contact" class="nav-link">제휴 문의</a></li>
         <li><a href="#faq" class="nav-link">FAQ</a></li>
     </ul>
@@ -331,6 +332,21 @@
                     <tr><td>Claude Sonnet 4</td><td>속도와 성능의 균형</td><td>-</td></tr>
                 </tbody>
             </table>
+        </div>
+    </div>
+</section>
+
+<!-- 회로 검증 AI 섹션 -->
+<section id="circuit-checker">
+    <div class="fade-in">
+        <h2 class="section-title"><span>AI 회로</span> 검증기</h2>
+        <p style="text-align:center; color:#aaa; margin-bottom: 30px; max-width: 600px; margin-left: auto; margin-right: auto;">
+            카메라를 통해 회로도를 비추면 AI가 실시간으로 분석하여 맞는지 아닌지 판별합니다.
+        </p>
+        <div class="circuit-wrap">
+            <div id="webcam-container"></div>
+            <div id="label-container"></div>
+            <button type="button" class="btn lab-btn" id="start-btn" onclick="initCircuitAI()">검증 시작하기</button>
         </div>
     </div>
 </section>
@@ -432,6 +448,8 @@
 <button class="theme-toggle" id="themeToggle" aria-label="테마 전환">🌙</button>
 
 
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
 <!-- ===================== JavaScript ===================== -->
 <script>
     // ─── 1. 타이핑 효과 ───

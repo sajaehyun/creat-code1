@@ -65,6 +65,8 @@ navLinks.forEach(link => {
         const target = document.querySelector(link.getAttribute('href'));
         target.scrollIntoView({ behavior: 'smooth' });
         // 모바일 메뉴 닫기
+        const navMenu = document.getElementById('navMenu');
+        const hamburger = document.getElementById('hamburger');
         navMenu.classList.remove('open');
         hamburger.classList.remove('open');
     });
@@ -151,3 +153,75 @@ document.querySelectorAll('.card').forEach(card => {
         card.style.transform = '';
     });
 });
+
+// ─── 9. 회로 검증 AI (Teachable Machine) ───
+const CIRCUIT_MODEL_URL = "https://teachablemachine.withgoogle.com/models/-QV2XmXIr/";
+let circuitModel, circuitWebcam, circuitLabelContainer, circuitMaxPredictions;
+
+async function initCircuitAI() {
+    const startBtn = document.getElementById('start-btn');
+    startBtn.disabled = true;
+    startBtn.textContent = "모델 로딩 중...";
+
+    const modelURL = CIRCUIT_MODEL_URL + "model.json";
+    const metadataURL = CIRCUIT_MODEL_URL + "metadata.json";
+
+    try {
+        circuitModel = await tmImage.load(modelURL, metadataURL);
+        circuitMaxPredictions = circuitModel.getTotalClasses();
+
+        // 웹캠 설정
+        const flip = true;
+        circuitWebcam = new tmImage.Webcam(400, 400, flip);
+        await circuitWebcam.setup();
+        await circuitWebcam.play();
+        window.requestAnimationFrame(circuitLoop);
+
+        // UI 업데이트
+        document.getElementById("webcam-container").appendChild(circuitWebcam.canvas);
+        circuitLabelContainer = document.getElementById("label-container");
+        circuitLabelContainer.innerHTML = "";
+        for (let i = 0; i < circuitMaxPredictions; i++) {
+            const div = document.createElement("div");
+            div.className = "label-item";
+            div.innerHTML = `<span class="label-name"></span><span class="label-prob"></span>`;
+            circuitLabelContainer.appendChild(div);
+        }
+        
+        startBtn.style.display = "none";
+    } catch (e) {
+        console.error(e);
+        alert("웹캠을 시작할 수 없거나 모델을 불러오는데 실패했습니다.");
+        startBtn.disabled = false;
+        startBtn.textContent = "검증 시작하기";
+    }
+}
+
+async function circuitLoop() {
+    if (circuitWebcam) {
+        circuitWebcam.update();
+        await circuitPredict();
+        window.requestAnimationFrame(circuitLoop);
+    }
+}
+
+async function circuitPredict() {
+    const prediction = await circuitModel.predict(circuitWebcam.canvas);
+    for (let i = 0; i < circuitMaxPredictions; i++) {
+        const classPrediction = prediction[i];
+        const item = circuitLabelContainer.childNodes[i];
+        if (item) {
+            const name = item.querySelector(".label-name");
+            const prob = item.querySelector(".label-prob");
+            
+            name.innerText = classPrediction.className;
+            prob.innerText = (classPrediction.probability * 100).toFixed(1) + "%";
+            
+            if (classPrediction.probability > 0.8) {
+                item.classList.add("high");
+            } else {
+                item.classList.remove("high");
+            }
+        }
+    }
+}
