@@ -26,6 +26,7 @@ A comprehensive, text-rich usage guide for GenSpark (AI coding tool), designed t
 - `main.js`: Logic for typing effects, scroll animations, theme toggling, and mobile menu.
 
 ## Latest Changes
+- **Google Site Verification:** Added the Google Site Verification meta tag to the `<head>` of `index.html` as requested by the user.
 - **Total Pivot:** Transformed from "Claude Introduction" to "GenSpark Usage Guide".
 - **Content Overhaul:** Replaced all placeholder text with GenSpark-specific guide content.
 - **Layout Update:** Added `.guide-step` and `.content-block` styles for better article readability.
